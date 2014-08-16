@@ -14,7 +14,8 @@ Task 1:Loading and Processing the Data
 -------------------------------------------------------------------
 
 
-```{r}
+
+```r
 path <- "../assign01_1"
 options(digits = 3)
 setwd(path)
@@ -29,11 +30,14 @@ For this part the observations with NA values are ignored.
 **1. Histogram of the total number of steps taken each day**
 
 
-```{r}
+
+```r
 stepsTotal <- aggregate(steps ~ date, data = data, sum, na.rm = TRUE)
 hist(stepsTotal$steps, xlab = "total steps per day", ylab = "Days",
 	main = paste("Histogram of total steps taken per day"))
 ```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 
 
 
@@ -41,12 +45,22 @@ hist(stepsTotal$steps, xlab = "total steps per day", ylab = "Days",
 
 
 
-```{r}
+
+```r
 cat(sprintf("Mean number of steps taken each day were: %1.0f \n", mean(stepsTotal$steps)))
 ```
 
-```{r}
+```
+## Mean number of steps taken each day were: 10766
+```
+
+
+```r
 cat(sprintf("Median number of steps taken each day were: %1.0f\n", median(stepsTotal$steps)))
+```
+
+```
+## Median number of steps taken each day were: 10765
 ```
 
 Task 3: What is the average daily activity pattern? 
@@ -55,10 +69,13 @@ Task 3: What is the average daily activity pattern?
 
 
 
-```{r}
+
+```r
 stepsInterval <- aggregate(steps ~ interval, data = data, mean, na.rm = TRUE)
 plot(steps ~ interval, data = stepsInterval, type = "l")
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 
 
@@ -66,14 +83,25 @@ plot(steps ~ interval, data = stepsInterval, type = "l")
 
 
 
-```{r}
+
+```r
 stepsInterval[which.max(stepsInterval$steps), ]$interval
 ```
 
+```
+## [1] 835
+```
 
-```{r}
+
+
+```r
 cat(sprintf("\n5-minute interval with maximum number of steps: %1.0f\n",
 	stepsInterval[which.max(stepsInterval$steps), ]$interval))
+```
+
+```
+## 
+## 5-minute interval with maximum number of steps: 835
 ```
 
 
@@ -85,8 +113,14 @@ A number of days/intervals have missing values (coded as NA). The presence of mi
 
 
 
-```{r}
+
+```r
 cat(sprintf("\nTotal number of rows with NAs: %1.0f \n", sum(is.na(data$steps))))
+```
+
+```
+## 
+## Total number of rows with NAs: 2304
 ```
 
 
@@ -98,7 +132,8 @@ Strategy followed is to replace NAs with the mean value for that activity obtain
 
 
 
-```{r}
+
+```r
 dataNew <- merge(data, stepsInterval, by= "interval")
 dataNew$stepsIncNa <- with(dataNew, ifelse(!is.na(steps.x),steps.x, steps.y))
 ```
@@ -107,21 +142,36 @@ dataNew$stepsIncNa <- with(dataNew, ifelse(!is.na(steps.x),steps.x, steps.y))
 *Using a Histogram*
 
 
-```{r}
+
+```r
 stepsTotalIncNa <- aggregate(stepsIncNa ~ date, data = dataNew, sum, na.rm = TRUE)
 hist(stepsTotalIncNa$steps, xlab = "total steps per day", ylab = "Days",
 	main = paste("Histogram of total steps taken per day (NA's included)"))
 ```
 
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+
 
 *By calculating and reporting the mean and median total number of steps taken per day.*
 
 
-```{r}
+
+```r
 cat(sprintf("Mean number of steps taken each day (NAs included): %1.0f \n",
 mean(stepsTotalIncNa$steps)))
+```
+
+```
+## Mean number of steps taken each day (NAs included): 10766
+```
+
+```r
 cat(sprintf("Median number of steps taken each day (NAs included): %1.0f\n",
 median(stepsTotalIncNa$steps)))
+```
+
+```
+## Median number of steps taken each day (NAs included): 10766
 ```
 
 
@@ -130,7 +180,8 @@ Task 4: analysis for differences in activity patterns between weekdays and weeke
 **1. Create a new factor variable in the dataset indicating if it is a weekend or weekday.**
 
 
-```{r}
+
+```r
 dataNew$day <- weekdays(as.Date(dataNew$date))
 dataNew$weekend <- as.factor(with(dataNew, ifelse(day == "Saturday","weekend",
 ifelse(day == "Sunday","weekend","weekday"))))
@@ -138,10 +189,20 @@ ifelse(day == "Sunday","weekend","weekday"))))
 
 Create a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)
 
-```{r}
+
+```r
 stepsTotalIncNa <- aggregate(stepsIncNa ~ interval + weekend, data = dataNew, mean, na.rm = TRUE)
 library(ggplot2)
+```
+
+```
+## Loading required package: methods
+```
+
+```r
 p <- ggplot(stepsTotalIncNa, aes(x = interval, y=stepsIncNa)) + geom_line()
 p + facet_grid(weekend~.) + ylab("Number of Steps")
 ```
+
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
 
